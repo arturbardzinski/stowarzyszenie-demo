@@ -103,27 +103,60 @@ export default function BookScreen() {
   const onSubmit = () => {
     if (!validate() || !person) return;
 
-    const lines: (string | null)[] = [
-      `Imię i nazwisko: ${name.trim()}`,
-      `Preferowany sposób kontaktu: ${contactPref === 'email' ? 'e-mail' : 'telefon'}`,
-      email.trim() ? `E-mail: ${email.trim()}` : null,
-      phone.trim() ? `Telefon: ${phone.trim()}` : null,
-      formats.length ? `Forma konsultacji: ${formats.join(', ')}` : null,
-      preferred.trim() ? `Preferowany termin: ${preferred.trim()}` : null,
-      '',
-      message.trim() ? `Wiadomość:\n${message.trim()}` : null,
-      '',
-      '---',
-      `Specjalista: ${person.name}`,
-      `Specjalizacja: ${person.specialization}`,
-      `Wysłane przez formularz online (stowarzyszenie-demo).`,
+    const firstName = person.name.split(' ')[0] ?? person.name;
+    const sections: string[] = [];
+
+    sections.push(
+      `Cześć ${firstName},\n\nchcę umówić konsultację. Poniżej szczegóły:`
+    );
+
+    // — DANE KONTAKTOWE —
+    const contactLines = [
+      `Imię i nazwisko:     ${name.trim()}`,
+      `Preferowany kontakt: ${contactPref === 'email' ? 'e-mail' : 'telefon'}`,
     ];
-    const body = lines.filter((l) => l !== null).join('\n');
+    if (email.trim()) contactLines.push(`E-mail:              ${email.trim()}`);
+    if (phone.trim()) contactLines.push(`Telefon:             ${phone.trim()}`);
+    sections.push(`— DANE KONTAKTOWE —\n${contactLines.join('\n')}`);
+
+    // — FORMA KONSULTACJI —
+    if (formats.length) {
+      sections.push(
+        `— FORMA KONSULTACJI —\n${formats.map((f) => `• ${f}`).join('\n')}`
+      );
+    }
+
+    // — PREFEROWANY TERMIN —
+    if (preferred.trim()) {
+      sections.push(`— PREFEROWANY TERMIN —\n${preferred.trim()}`);
+    }
+
+    // — WIADOMOŚĆ —
+    if (message.trim()) {
+      sections.push(`— WIADOMOŚĆ —\n${message.trim()}`);
+    }
+
+    // — Podpis —
+    sections.push(`Pozdrawiam,\n${name.trim()}`);
+
+    // — Metadane —
+    sections.push(
+      [
+        '—',
+        'Wysłane przez formularz online stowarzyszenia.',
+        `Specjalista: ${person.name}`,
+        `Specjalizacja: ${person.specialization}`,
+      ].join('\n')
+    );
+
+    const body = sections.join('\n\n');
     const subject = `Zgłoszenie konsultacji u ${person.name}`;
-    const url = `mailto:${person.directEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const url = `mailto:${person.directEmail}?subject=${encodeURIComponent(
+      subject
+    )}&body=${encodeURIComponent(body)}`;
 
     Linking.openURL(url).catch(() => {
-      // brak klienta poczty — pokazujemy success state i tak,
+      // brak klienta poczty — i tak pokazujemy success,
       // user moze skopiowac dane z podsumowania
     });
 
