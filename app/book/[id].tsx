@@ -5,6 +5,7 @@ import { useState } from 'react';
 import {
   Image,
   KeyboardAvoidingView,
+  Linking,
   Platform,
   Pressable,
   ScrollView,
@@ -54,12 +55,18 @@ export default function BookScreen() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [format, setFormat] = useState<string | null>(null);
+  const [formats, setFormats] = useState<string[]>([]);
   const [preferred, setPreferred] = useState('');
   const [message, setMessage] = useState('');
   const [contactPref, setContactPref] = useState<ContactPref>('email');
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState<{ name?: string; email?: string; phone?: string }>({});
+
+  const toggleFormat = (f: string) => {
+    setFormats((prev) =>
+      prev.includes(f) ? prev.filter((x) => x !== f) : [...prev, f]
+    );
+  };
 
   if (!person) {
     return (
@@ -94,7 +101,32 @@ export default function BookScreen() {
   };
 
   const onSubmit = () => {
-    if (!validate()) return;
+    if (!validate() || !person) return;
+
+    const lines: (string | null)[] = [
+      `Imię i nazwisko: ${name.trim()}`,
+      `Preferowany sposób kontaktu: ${contactPref === 'email' ? 'e-mail' : 'telefon'}`,
+      email.trim() ? `E-mail: ${email.trim()}` : null,
+      phone.trim() ? `Telefon: ${phone.trim()}` : null,
+      formats.length ? `Forma konsultacji: ${formats.join(', ')}` : null,
+      preferred.trim() ? `Preferowany termin: ${preferred.trim()}` : null,
+      '',
+      message.trim() ? `Wiadomość:\n${message.trim()}` : null,
+      '',
+      '---',
+      `Specjalista: ${person.name}`,
+      `Specjalizacja: ${person.specialization}`,
+      `Wysłane przez formularz online (stowarzyszenie-demo).`,
+    ];
+    const body = lines.filter((l) => l !== null).join('\n');
+    const subject = `Zgłoszenie konsultacji u ${person.name}`;
+    const url = `mailto:${person.directEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+    Linking.openURL(url).catch(() => {
+      // brak klienta poczty — pokazujemy success state i tak,
+      // user moze skopiowac dane z podsumowania
+    });
+
     setSubmitted(true);
   };
 
@@ -112,11 +144,12 @@ export default function BookScreen() {
                     <Ionicons name="checkmark" size={36} color="#fff" />
                   </View>
                 </View>
-                <Text style={styles.successTitle}>Dziękujemy!</Text>
+                <Text style={styles.successTitle}>Prawie gotowe!</Text>
                 <Text style={styles.successSub}>
-                  Twoje zgłoszenie konsultacji u{' '}
-                  <Text style={{ fontWeight: '700' }}>{person.name}</Text>{' '}
-                  zostało zapisane. Odezwiemy się do 24 godzin pod podany
+                  Otworzyliśmy Twojego klienta poczty z gotową wiadomością do{' '}
+                  <Text style={{ fontWeight: '700' }}>{person.name}</Text>.
+                  Sprawdź treść i kliknij „wyślij" w swojej aplikacji pocztowej.
+                  Odezwiemy się do 24 godzin pod podany
                   {contactPref === 'email' ? ' adres e-mail' : ' numer telefonu'}.
                 </Text>
 
@@ -124,16 +157,19 @@ export default function BookScreen() {
                   <Text style={styles.summaryEyebrow}>Podsumowanie zgłoszenia</Text>
                   <SummaryRow label="Specjalista" value={person.name} />
                   <SummaryRow label="Specjalizacja" value={person.specialization} />
-                  {format ? <SummaryRow label="Forma" value={format} /> : null}
+                  {formats.length ? <SummaryRow label="Forma" value={formats.join(', ')} /> : null}
                   {preferred ? <SummaryRow label="Preferowany termin" value={preferred} /> : null}
                   <SummaryRow label="Kontakt zwrotny" value={contactPref === 'email' ? email : phone || email} />
                 </GlassCard>
 
                 <GlassCard style={styles.note}>
                   <Text style={typography.muted}>
-                    To formularz demonstracyjny — w pełnej wersji zgłoszenie
-                    trafiłoby do skrzynki specjalisty oraz do recepcji
-                    stowarzyszenia.
+                    Jeśli klient pocztowy się nie otworzył, możesz wysłać
+                    zgłoszenie ręcznie na{' '}
+                    <Text style={{ fontWeight: '700', color: colors.ink }}>
+                      {person.directEmail}
+                    </Text>{' '}
+                    — w polu „temat" wpisz: „Zgłoszenie konsultacji u {person.name}".
                   </Text>
                 </GlassCard>
 
@@ -261,14 +297,17 @@ export default function BookScreen() {
                   error={errors.phone}
                 />
 
-                <Text style={styles.label}>Forma konsultacji</Text>
+                <Text style={styles.label}>
+                  Forma konsultacji{' '}
+                  <Text style={styles.labelHint}>(możesz wybrać kilka)</Text>
+                </Text>
                 <View style={styles.toggleRow}>
                   {person.consultationFormats.map((f) => (
                     <TogglePill
                       key={f}
                       label={f}
-                      active={format === f}
-                      onPress={() => setFormat(f)}
+                      active={formats.includes(f)}
+                      onPress={() => toggleFormat(f)}
                     />
                   ))}
                 </View>
@@ -477,6 +516,13 @@ const styles = StyleSheet.create({
     ...typography.label,
     color: colors.inkSoft,
     marginBottom: spacing.xs,
+  },
+  labelHint: {
+    ...typography.label,
+    color: colors.inkMuted,
+    textTransform: 'none',
+    letterSpacing: 0,
+    fontWeight: '500',
   },
   input: {
     backgroundColor: colors.surface,
