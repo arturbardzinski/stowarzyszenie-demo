@@ -59,7 +59,7 @@ export default function BookScreen() {
   const [message, setMessage] = useState('');
   const [contactPref, setContactPref] = useState<ContactPref>('email');
   const [submitted, setSubmitted] = useState(false);
-  const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
+  const [errors, setErrors] = useState<{ name?: string; email?: string; phone?: string }>({});
 
   if (!person) {
     return (
@@ -80,7 +80,15 @@ export default function BookScreen() {
   const validate = () => {
     const e: typeof errors = {};
     if (!name.trim()) e.name = 'Podaj imię i nazwisko';
-    if (!email.trim() || !email.includes('@')) e.email = 'Podaj poprawny e-mail';
+    if (contactPref === 'email') {
+      if (!email.trim() || !email.includes('@')) {
+        e.email = 'Podaj poprawny e-mail';
+      }
+    } else {
+      if (!phone.trim()) {
+        e.phone = 'Podaj numer telefonu';
+      }
+    }
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -214,8 +222,28 @@ export default function BookScreen() {
                   error={errors.name}
                 />
 
+                <Text style={styles.label}>Preferowany sposób kontaktu</Text>
+                <View style={styles.toggleRow}>
+                  <TogglePill
+                    label="E-mail"
+                    active={contactPref === 'email'}
+                    onPress={() => {
+                      setContactPref('email');
+                      setErrors((prev) => ({ ...prev, phone: undefined }));
+                    }}
+                  />
+                  <TogglePill
+                    label="Telefon"
+                    active={contactPref === 'phone'}
+                    onPress={() => {
+                      setContactPref('phone');
+                      setErrors((prev) => ({ ...prev, email: undefined }));
+                    }}
+                  />
+                </View>
+
                 <Field
-                  label="E-mail"
+                  label={contactPref === 'email' ? 'E-mail' : 'E-mail (opcjonalnie)'}
                   value={email}
                   onChangeText={setEmail}
                   placeholder="jan@example.com"
@@ -225,26 +253,13 @@ export default function BookScreen() {
                 />
 
                 <Field
-                  label="Telefon (opcjonalnie)"
+                  label={contactPref === 'phone' ? 'Telefon' : 'Telefon (opcjonalnie)'}
                   value={phone}
                   onChangeText={setPhone}
                   placeholder="+48 ..."
                   keyboardType="phone-pad"
+                  error={errors.phone}
                 />
-
-                <Text style={styles.label}>Preferowany sposób kontaktu</Text>
-                <View style={styles.toggleRow}>
-                  <TogglePill
-                    label="E-mail"
-                    active={contactPref === 'email'}
-                    onPress={() => setContactPref('email')}
-                  />
-                  <TogglePill
-                    label="Telefon"
-                    active={contactPref === 'phone'}
-                    onPress={() => setContactPref('phone')}
-                  />
-                </View>
 
                 <Text style={styles.label}>Forma konsultacji</Text>
                 <View style={styles.toggleRow}>
