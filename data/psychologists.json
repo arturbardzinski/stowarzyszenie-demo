@@ -1,0 +1,58 @@
+[
+  {
+    "id": "anna-kowalska",
+    "name": "Anna Kowalska",
+    "specialization": "Psychoterapia indywidualna",
+    "shortDescription": "Psycholożka wspierająca osoby dorosłe w pracy z lękiem, stresem i trudnościami w relacjach.",
+    "experience": "Od ponad 10 lat prowadzi psychoterapię indywidualną osób dorosłych. Pracuje w nurcie integracyjnym, łącząc elementy terapii poznawczo-behawioralnej i podejścia humanistycznego.",
+    "areas": [
+      "Zaburzenia lękowe",
+      "Stres przewlekły",
+      "Trudności w relacjach",
+      "Niskie poczucie własnej wartości"
+    ],
+    "photo": "https://i.pravatar.cc/400?img=47"
+  },
+  {
+    "id": "marek-nowicki",
+    "name": "Marek Nowicki",
+    "specialization": "Terapia par",
+    "shortDescription": "Pomaga parom w poprawie komunikacji, odbudowie zaufania i rozwiązywaniu konfliktów.",
+    "experience": "Certyfikowany terapeuta par z 12-letnim doświadczeniem. Prowadzi sesje par w kryzysie, ale też tych, które chcą świadomie pracować nad bliskością.",
+    "areas": [
+      "Kryzysy w związku",
+      "Komunikacja w parze",
+      "Odbudowa zaufania po zdradzie",
+      "Decyzje o wspólnej przyszłości"
+    ],
+    "photo": "https://i.pravatar.cc/400?img=12"
+  },
+  {
+    "id": "julia-wisniewska",
+    "name": "Julia Wiśniewska",
+    "specialization": "Wsparcie młodzieży",
+    "shortDescription": "Pracuje z nastolatkami doświadczającymi napięcia, obniżonego nastroju i problemów szkolnych.",
+    "experience": "Psycholożka dziecięca i młodzieżowa. Współpracuje również z rodzicami, pomagając budować bezpieczną relację i wspierać nastolatka w okresie dojrzewania.",
+    "areas": [
+      "Obniżony nastrój u nastolatków",
+      "Trudności szkolne",
+      "Lęk społeczny",
+      "Relacje z rówieśnikami"
+    ],
+    "photo": "https://i.pravatar.cc/400?img=45"
+  },
+  {
+    "id": "tomasz-zielinski",
+    "name": "Tomasz Zieliński",
+    "specialization": "Konsultacje kryzysowe",
+    "shortDescription": "Wspiera osoby w trudnych momentach życiowych, po stracie, rozstaniu lub nagłej zmianie sytuacji.",
+    "experience": "Interwent kryzysowy z wieloletnim doświadczeniem w poradniach i ośrodkach pomocy. Pracuje krótkoterminowo, ukierunkowując rozmowę na stabilizację i konkretne kroki.",
+    "areas": [
+      "Strata bliskiej osoby",
+      "Rozstanie i rozwód",
+      "Nagła zmiana sytuacji życiowej",
+      "Wypalenie zawodowe"
+    ],
+    "photo": "https://i.pravatar.cc/400?img=33"
+  }
+]

@@ -1,0 +1,36 @@
+{
+  "expo": {
+    "name": "Centrum Dobrego Dialogu",
+    "slug": "stowarzyszenie-demo",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "centrumdobregodialogu",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#F7F3EC"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.cdd.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#F7F3EC"
+      },
+      "package": "com.cdd.app"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
