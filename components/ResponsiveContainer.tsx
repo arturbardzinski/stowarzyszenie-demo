@@ -5,9 +5,15 @@ type Props = {
   children: React.ReactNode;
   style?: ViewStyle;
   padded?: boolean;
+  maxWidth?: number;
 };
 
-export function ResponsiveContainer({ children, style, padded = true }: Props) {
+export function ResponsiveContainer({
+  children,
+  style,
+  padded = true,
+  maxWidth = maxContentWidth,
+}: Props) {
   return (
     <View
       style={[
@@ -16,7 +22,7 @@ export function ResponsiveContainer({ children, style, padded = true }: Props) {
         style,
       ]}
     >
-      <View style={styles.inner}>{children}</View>
+      <View style={[styles.inner, { maxWidth }]}>{children}</View>
     </View>
   );
 }
@@ -28,6 +34,5 @@ const styles = StyleSheet.create({
   },
   inner: {
     width: '100%',
-    maxWidth: maxContentWidth,
   },
 });

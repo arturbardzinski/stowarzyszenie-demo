@@ -26,7 +26,7 @@ export default function PsychologistsScreen() {
           showsVerticalScrollIndicator={false}
         >
           <AnimatedFade>
-            <ResponsiveContainer>
+            <ResponsiveContainer maxWidth={1080}>
               <Pill label="Zespół" tone="lavender" />
 
               <Text style={styles.title}>Poznaj naszych psychologów</Text>
@@ -38,7 +38,7 @@ export default function PsychologistsScreen() {
 
               <View style={[styles.list, isMd && styles.grid]}>
                 {data.map((p, i) => (
-                  <View key={p.id} style={[isMd && styles.gridItem]}>
+                  <View key={p.id} style={isMd ? styles.gridItem : styles.listItem}>
                     <ProfileCard
                       psychologist={p}
                       index={i}
@@ -74,6 +74,15 @@ const styles = StyleSheet.create({
     maxWidth: 560,
   },
   list: { gap: spacing.md },
-  grid: { flexDirection: 'row', flexWrap: 'wrap' },
-  gridItem: { width: '48%', marginRight: '2%', marginBottom: spacing.md },
+  listItem: {},
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.md,
+  },
+  gridItem: {
+    flexGrow: 1,
+    flexBasis: '48%',
+    maxWidth: '49%',
+  },
 });
