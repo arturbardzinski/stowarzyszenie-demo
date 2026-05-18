@@ -16,12 +16,13 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AnimatedFade } from '@/components/AnimatedFade';
+import { Footer } from '@/components/Footer';
 import { GlassCard } from '@/components/GlassCard';
 import { GradientBackground } from '@/components/GradientBackground';
 import { GradientButton } from '@/components/GradientButton';
 import { Pill } from '@/components/Pill';
 import { ResponsiveContainer } from '@/components/ResponsiveContainer';
-import { colors, gradients, radius, shadows, spacing, typography } from '@/constants/theme';
+import { colors, fonts, radius, shadows, spacing, typography } from '@/constants/theme';
 import psychologists from '@/data/psychologists.json';
 import type { Psychologist } from '@/types/psychologist';
 
@@ -31,18 +32,6 @@ export async function generateStaticParams(): Promise<Record<string, string>[]> 
   return data.map((p) => ({ id: p.id }));
 }
 
-const accentByIndex = [
-  gradients.cool,
-  gradients.warm,
-  gradients.accent,
-  gradients.heroDeep,
-] as const;
-
-function pickAccent(i: number) {
-  const safe = i < 0 ? 0 : i % accentByIndex.length;
-  return accentByIndex[safe] ?? accentByIndex[0]!;
-}
-
 type ContactPref = 'email' | 'phone';
 
 export default function BookScreen() {
@@ -50,7 +39,6 @@ export default function BookScreen() {
   const router = useRouter();
   const index = data.findIndex((p) => p.id === id);
   const person = index >= 0 ? data[index] : undefined;
-  const accent = pickAccent(index);
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -71,7 +59,7 @@ export default function BookScreen() {
   if (!person) {
     return (
       <View style={styles.root}>
-        <GradientBackground colors={gradients.hero} blobs />
+        <GradientBackground />
         <SafeAreaView style={styles.notFoundWrap}>
           <Text style={typography.heading}>Nie znaleziono profilu</Text>
           <GradientButton
@@ -83,6 +71,12 @@ export default function BookScreen() {
       </View>
     );
   }
+
+  const firstName = person.name.split(' ')[0] ?? person.name;
+  const ringColors =
+    index % 2 === 0
+      ? ([colors.clay, colors.blushDeep] as const)
+      : ([colors.sage, colors.sageWash] as const);
 
   const validate = () => {
     const e: typeof errors = {};
@@ -103,14 +97,10 @@ export default function BookScreen() {
   const onSubmit = () => {
     if (!validate() || !person) return;
 
-    const firstName = person.name.split(' ')[0] ?? person.name;
     const sections: string[] = [];
 
-    sections.push(
-      `Cześć ${firstName},\n\nchcę umówić konsultację. Poniżej szczegóły:`
-    );
+    sections.push(`Cześć ${firstName},\n\nchcę umówić konsultację. Poniżej szczegóły:`);
 
-    // — DANE KONTAKTOWE —
     const contactLines = [
       `Imię i nazwisko:     ${name.trim()}`,
       `Preferowany kontakt: ${contactPref === 'email' ? 'e-mail' : 'telefon'}`,
@@ -119,27 +109,17 @@ export default function BookScreen() {
     if (phone.trim()) contactLines.push(`Telefon:             ${phone.trim()}`);
     sections.push(`— DANE KONTAKTOWE —\n${contactLines.join('\n')}`);
 
-    // — FORMA KONSULTACJI —
     if (formats.length) {
-      sections.push(
-        `— FORMA KONSULTACJI —\n${formats.map((f) => `• ${f}`).join('\n')}`
-      );
+      sections.push(`— FORMA KONSULTACJI —\n${formats.map((f) => `• ${f}`).join('\n')}`);
     }
-
-    // — PREFEROWANY TERMIN —
     if (preferred.trim()) {
       sections.push(`— PREFEROWANY TERMIN —\n${preferred.trim()}`);
     }
-
-    // — WIADOMOŚĆ —
     if (message.trim()) {
       sections.push(`— WIADOMOŚĆ —\n${message.trim()}`);
     }
 
-    // — Podpis —
     sections.push(`Pozdrawiam,\n${name.trim()}`);
-
-    // — Metadane —
     sections.push(
       [
         '—',
@@ -155,54 +135,61 @@ export default function BookScreen() {
       subject
     )}&body=${encodeURIComponent(body)}`;
 
-    Linking.openURL(url).catch(() => {
-      // brak klienta poczty — i tak pokazujemy success,
-      // user moze skopiowac dane z podsumowania
-    });
-
+    Linking.openURL(url).catch(() => {});
     setSubmitted(true);
   };
 
   if (submitted) {
     return (
       <View style={styles.root}>
-        <GradientBackground colors={accent} blobs />
+        <GradientBackground />
         <Stack.Screen options={{ title: 'Zgłoszenie wysłane' }} />
         <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
           <ScrollView contentContainerStyle={styles.scroll}>
             <AnimatedFade>
               <ResponsiveContainer>
-                <View style={styles.successHero}>
-                  <View style={styles.successBadge}>
-                    <Ionicons name="checkmark" size={36} color="#fff" />
-                  </View>
+                <View style={styles.successBadgeWrap}>
+                  <LinearGradient
+                    colors={[colors.clay, colors.clayDeep] as unknown as string[]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.successBadge}
+                  >
+                    <Ionicons name="checkmark" size={36} color="#FFF7EC" />
+                  </LinearGradient>
                 </View>
-                <Text style={styles.successTitle}>Prawie gotowe!</Text>
+
+                <Text style={styles.successTitle}>
+                  <Text style={styles.successTitleItalic}>Prawie gotowe.</Text>{' '}
+                  Sprawdź wiadomość
+                </Text>
                 <Text style={styles.successSub}>
                   Otworzyliśmy Twojego klienta poczty z gotową wiadomością do{' '}
-                  <Text style={{ fontWeight: '700' }}>{person.name}</Text>.
-                  Sprawdź treść i kliknij „wyślij" w swojej aplikacji pocztowej.
-                  Odezwiemy się do 24 godzin pod podany
-                  {contactPref === 'email' ? ' adres e-mail' : ' numer telefonu'}.
+                  <Text style={styles.boldInk}>{person.name}</Text>. Sprawdź treść i
+                  kliknij „wyślij" w swojej aplikacji pocztowej. Odezwiemy się do 24 h
+                  pod podany {contactPref === 'email' ? 'adres e-mail' : 'numer telefonu'}.
                 </Text>
 
-                <GlassCard padding="lg" style={{ marginTop: spacing.lg }}>
+                <GlassCard padding="lg" rounded="lg" style={{ marginTop: spacing.lg }}>
                   <Text style={styles.summaryEyebrow}>Podsumowanie zgłoszenia</Text>
                   <SummaryRow label="Specjalista" value={person.name} />
                   <SummaryRow label="Specjalizacja" value={person.specialization} />
-                  {formats.length ? <SummaryRow label="Forma" value={formats.join(', ')} /> : null}
+                  {formats.length ? (
+                    <SummaryRow label="Forma" value={formats.join(', ')} />
+                  ) : null}
                   {preferred ? <SummaryRow label="Preferowany termin" value={preferred} /> : null}
-                  <SummaryRow label="Kontakt zwrotny" value={contactPref === 'email' ? email : phone || email} />
+                  <SummaryRow
+                    label="Kontakt zwrotny"
+                    value={contactPref === 'email' ? email : phone || email}
+                  />
                 </GlassCard>
 
-                <GlassCard style={styles.note}>
-                  <Text style={typography.muted}>
-                    Jeśli klient pocztowy się nie otworzył, możesz wysłać
-                    zgłoszenie ręcznie na{' '}
-                    <Text style={{ fontWeight: '700', color: colors.ink }}>
-                      {person.directEmail}
-                    </Text>{' '}
-                    — w polu „temat" wpisz: „Zgłoszenie konsultacji u {person.name}".
+                <GlassCard variant="blush" padding="lg" rounded="lg" style={styles.note}>
+                  <Text style={styles.noteText}>
+                    Jeśli klient pocztowy się nie otworzył, możesz wysłać zgłoszenie
+                    ręcznie na{' '}
+                    <Text style={styles.boldInk}>{person.directEmail}</Text> —
+                    w temacie wpisz: „Zgłoszenie konsultacji u {person.name}".
                   </Text>
                 </GlassCard>
 
@@ -219,6 +206,8 @@ export default function BookScreen() {
                     onPress={() => router.push('/psychologists')}
                   />
                 </View>
+
+                <Footer />
               </ResponsiveContainer>
             </AnimatedFade>
           </ScrollView>
@@ -229,8 +218,8 @@ export default function BookScreen() {
 
   return (
     <View style={styles.root}>
-      <GradientBackground colors={accent} blobs />
-      <Stack.Screen options={{ title: `Konsultacja u ${person.name.split(' ')[0]}` }} />
+      <GradientBackground />
+      <Stack.Screen options={{ title: `Konsultacja u ${firstName}` }} />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={{ flex: 1 }}
@@ -243,41 +232,33 @@ export default function BookScreen() {
           >
             <AnimatedFade>
               <ResponsiveContainer>
-                <Pill label="Umów konsultację" tone="sage" />
-                <Text style={styles.title}>Spotkaj się z {person.name.split(' ')[0]}</Text>
+                <Pill label="Umów konsultację" tone="clay" />
+                <Text style={styles.title}>
+                  Spotkaj się z <Text style={styles.titleItalic}>{firstName}</Text>
+                </Text>
 
-                {/* Per-person hero — different from generic /contact */}
-                <View style={styles.personHero}>
-                  <LinearGradient
-                    colors={accent as unknown as string[]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.avatarRing}
-                  >
-                    <Image source={{ uri: person.photo }} style={styles.photo} />
-                  </LinearGradient>
-                  <View style={styles.personMeta}>
-                    <Text style={styles.personName}>{person.name}</Text>
-                    <Text style={styles.personSpec}>{person.specialization}</Text>
+                {/* Per-person hero strip */}
+                <GlassCard padding="lg" rounded="lg" style={styles.personHero}>
+                  <View style={styles.personHeroRow}>
+                    <LinearGradient
+                      colors={ringColors as unknown as string[]}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={styles.avatarRing}
+                    >
+                      <Image source={{ uri: person.photo }} style={styles.photo} />
+                    </LinearGradient>
+                    <View style={styles.personMeta}>
+                      <Text style={styles.personName}>{person.name}</Text>
+                      <Text style={styles.personSpec}>{person.specialization}</Text>
+                    </View>
                   </View>
-                </View>
 
-                {/* Per-person facts grid */}
-                <GlassCard padding="lg" style={{ marginBottom: spacing.lg }}>
-                  <Text style={styles.summaryEyebrow}>Szczegóły u tego specjalisty</Text>
-                  <SummaryRow label="Czas sesji" value={person.consultationDuration} icon="time-outline" />
-                  <SummaryRow label="Cena" value={person.price} icon="pricetag-outline" />
-                  <SummaryRow label="Dostępność" value={person.availability} icon="calendar-outline" />
-                  <SummaryRow
-                    label="E-mail bezpośredni"
-                    value={person.directEmail}
-                    icon="mail-outline"
-                  />
-                  <SummaryRow
-                    label="Telefon bezpośredni"
-                    value={person.directPhone}
-                    icon="call-outline"
-                  />
+                  <View style={styles.specsRow}>
+                    <SmallSpec icon="time-outline" label="Czas" value={person.consultationDuration} />
+                    <SmallSpec icon="pricetag-outline" label="Cena" value={person.price} />
+                    <SmallSpec icon="calendar-outline" label="Dostępność" value={person.availability} />
+                  </View>
                 </GlassCard>
 
                 {/* Form */}
@@ -331,8 +312,7 @@ export default function BookScreen() {
                 />
 
                 <Text style={styles.label}>
-                  Forma konsultacji{' '}
-                  <Text style={styles.labelHint}>(możesz wybrać kilka)</Text>
+                  Forma konsultacji <Text style={styles.labelHint}>(możesz wybrać kilka)</Text>
                 </Text>
                 <View style={styles.toggleRow}>
                   {person.consultationFormats.map((f) => (
@@ -363,23 +343,23 @@ export default function BookScreen() {
                 <GradientButton
                   label="Wyślij zgłoszenie"
                   icon="paper-plane-outline"
+                  iconRight="arrow-forward"
                   onPress={onSubmit}
                   style={{ marginTop: spacing.md }}
                 />
 
-                <GlassCard style={styles.note}>
-                  <Text style={typography.muted}>
-                    Zgłoszenie trafi bezpośrednio do {person.name.split(' ')[0]}.
-                    Jeżeli wolisz porozmawiać o doborze specjalisty, użyj{' '}
-                    <Text
-                      style={styles.link}
-                      onPress={() => router.push('/contact')}
-                    >
+                <GlassCard variant="blush" padding="lg" rounded="lg" style={styles.note}>
+                  <Text style={styles.noteText}>
+                    Zgłoszenie trafi bezpośrednio do {firstName}. Jeżeli wolisz
+                    porozmawiać o doborze specjalisty, użyj{' '}
+                    <Text style={styles.link} onPress={() => router.push('/contact')}>
                       ogólnego kontaktu stowarzyszenia
                     </Text>
                     .
                   </Text>
                 </GlassCard>
+
+                <Footer />
               </ResponsiveContainer>
             </AnimatedFade>
           </ScrollView>
@@ -399,18 +379,28 @@ function Field({
   error?: string | undefined;
   multiline?: boolean | undefined;
 }) {
+  const [focused, setFocused] = useState(false);
   return (
     <View style={{ marginBottom: spacing.md }}>
       <Text style={styles.label}>{label}</Text>
       <TextInput
         {...rest}
+        onFocus={(e) => {
+          setFocused(true);
+          rest.onFocus?.(e);
+        }}
+        onBlur={(e) => {
+          setFocused(false);
+          rest.onBlur?.(e);
+        }}
         multiline={multiline}
         style={[
           styles.input,
           multiline && styles.inputMultiline,
+          focused && styles.inputFocused,
           !!error && styles.inputError,
         ]}
-        placeholderTextColor={colors.inkMuted}
+        placeholderTextColor={colors.stoneSoft}
       />
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
     </View>
@@ -426,10 +416,13 @@ function TogglePill({
   active: boolean;
   onPress: () => void;
 }) {
+  const webStyle = Platform.OS === 'web' ? ({ cursor: 'pointer' } as any) : null;
   return (
     <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ selected: active }}
       onPress={onPress}
-      style={[styles.togglePill, active && styles.togglePillActive]}
+      style={[styles.togglePill, active && styles.togglePillActive, webStyle]}
     >
       <Text style={[styles.togglePillText, active && styles.togglePillTextActive]}>
         {label}
@@ -438,46 +431,61 @@ function TogglePill({
   );
 }
 
-function SummaryRow({
+function SmallSpec({
+  icon,
   label,
   value,
-  icon,
 }: {
+  icon: keyof typeof Ionicons.glyphMap;
   label: string;
   value: string;
-  icon?: keyof typeof Ionicons.glyphMap;
 }) {
   return (
-    <View style={styles.summaryRow}>
-      {icon ? (
-        <View style={styles.summaryIcon}>
-          <Ionicons name={icon} size={16} color={colors.lavenderDeep} />
-        </View>
-      ) : null}
+    <View style={styles.smallSpec}>
+      <View style={styles.smallSpecIcon}>
+        <Ionicons name={icon} size={14} color={colors.clayDeep} />
+      </View>
       <View style={{ flex: 1 }}>
-        <Text style={styles.summaryLabel}>{label}</Text>
-        <Text style={styles.summaryValue}>{value}</Text>
+        <Text style={styles.smallSpecLabel}>{label}</Text>
+        <Text style={styles.smallSpecValue}>{value}</Text>
       </View>
     </View>
   );
 }
 
+function SummaryRow({ label, value }: { label: string; value: string }) {
+  return (
+    <View style={styles.summaryRow}>
+      <Text style={styles.summaryLabel}>{label}</Text>
+      <Text style={styles.summaryValue}>{value}</Text>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.bg },
-  scroll: { paddingTop: spacing.lg, paddingBottom: spacing.xxxl },
+  root: { flex: 1, backgroundColor: colors.paper },
+  scroll: { paddingTop: spacing.lg, paddingBottom: spacing.xl },
 
   title: {
-    ...typography.display,
-    fontSize: 30,
+    ...typography.title,
+    fontSize: 40,
+    lineHeight: 46,
     marginTop: spacing.md,
     marginBottom: spacing.lg,
   },
+  titleItalic: {
+    fontFamily: fonts.serifItalic,
+    color: colors.clayDeep,
+  },
 
   personHero: {
+    marginBottom: spacing.xl,
+    gap: spacing.md,
+  },
+  personHeroRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    marginBottom: spacing.lg,
   },
   avatarRing: {
     padding: 4,
@@ -488,96 +496,101 @@ const styles = StyleSheet.create({
     width: 84,
     height: 84,
     borderRadius: radius.pill,
-    backgroundColor: colors.bgWarm,
+    backgroundColor: colors.paperWarm,
   },
   personMeta: { flex: 1 },
   personName: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: colors.ink,
-    letterSpacing: -0.2,
+    ...typography.heading,
   },
   personSpec: {
-    color: colors.lavenderDeep,
-    fontWeight: '700',
-    fontSize: 12,
-    letterSpacing: 0.6,
-    textTransform: 'uppercase',
-    marginTop: 4,
+    fontFamily: fonts.sansMedium,
+    fontSize: 13,
+    color: colors.clayDeep,
+    marginTop: 2,
+    letterSpacing: 0.2,
   },
 
-  summaryEyebrow: {
-    ...typography.label,
-    color: colors.lavenderDeep,
-    marginBottom: spacing.sm,
-  },
-  summaryRow: {
+  specsRow: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: spacing.sm,
-    paddingVertical: spacing.sm,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
+    flexWrap: 'wrap',
+    gap: spacing.md,
+    paddingTop: spacing.md,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.hairline,
   },
-  summaryIcon: {
-    width: 28,
-    height: 28,
+  smallSpec: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flexGrow: 1,
+    flexBasis: 120,
+  },
+  smallSpecIcon: {
+    width: 26,
+    height: 26,
     borderRadius: radius.pill,
-    backgroundColor: '#EDE9FE',
+    backgroundColor: colors.blush,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 1,
   },
-  summaryLabel: {
-    ...typography.label,
-    color: colors.inkSoft,
-    marginBottom: 2,
+  smallSpecLabel: {
+    fontFamily: fonts.sansMedium,
+    fontSize: 10,
+    color: colors.stone,
+    letterSpacing: 0.5,
   },
-  summaryValue: {
-    fontSize: 15,
+  smallSpecValue: {
+    fontFamily: fonts.sansMedium,
+    fontSize: 13,
     color: colors.ink,
-    fontWeight: '600',
   },
 
   formHeader: {
     ...typography.heading,
     marginBottom: spacing.md,
-    marginTop: spacing.sm,
   },
 
   label: {
-    ...typography.label,
-    color: colors.inkSoft,
+    fontFamily: fonts.sansMedium,
+    fontSize: 12,
+    color: colors.stone,
+    letterSpacing: 0.4,
     marginBottom: spacing.xs,
   },
   labelHint: {
-    ...typography.label,
-    color: colors.inkMuted,
-    textTransform: 'none',
+    fontFamily: fonts.sans,
+    color: colors.stoneSoft,
     letterSpacing: 0,
-    fontWeight: '500',
   },
   input: {
     backgroundColor: colors.surface,
     borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.hairline,
     paddingHorizontal: spacing.md,
     paddingVertical: 12,
     fontSize: 16,
+    fontFamily: fonts.sans,
     color: colors.ink,
+    ...(Platform.OS === 'web' ? ({ outlineStyle: 'none' } as any) : {}),
   },
   inputMultiline: {
     minHeight: 96,
     textAlignVertical: 'top',
     paddingTop: 12,
   },
+  inputFocused: {
+    borderColor: colors.clayDeep,
+    borderWidth: 1.5,
+  },
   inputError: {
-    borderColor: '#DC2626',
+    borderColor: colors.clay,
+    borderWidth: 1.5,
   },
   errorText: {
-    color: '#DC2626',
-    fontSize: 13,
+    fontFamily: fonts.sansMedium,
+    color: colors.clayDeep,
+    fontSize: 12,
     marginTop: 4,
   },
 
@@ -591,59 +604,100 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: 10,
     borderRadius: radius.pill,
-    borderWidth: 1.5,
-    borderColor: colors.border,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.hairlineStrong,
     backgroundColor: colors.surface,
   },
   togglePillActive: {
-    borderColor: colors.lavenderDeep,
-    backgroundColor: '#EDE9FE',
+    backgroundColor: colors.ink,
+    borderColor: colors.ink,
   },
   togglePillText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.inkSoft,
-    textTransform: 'capitalize',
+    fontFamily: fonts.sansMedium,
+    fontSize: 13,
+    color: colors.ink,
   },
   togglePillTextActive: {
-    color: colors.lavenderDeep,
+    color: colors.paper,
   },
 
   link: {
-    color: colors.lavenderDeep,
-    fontWeight: '700',
+    fontFamily: fonts.sansSemibold,
+    color: colors.clayDeep,
     textDecorationLine: 'underline',
   },
 
   note: { marginTop: spacing.lg },
-
-  // success state
-  successHero: {
-    alignItems: 'center',
-    marginBottom: spacing.md,
+  noteText: {
+    fontFamily: fonts.sans,
+    fontSize: 13,
+    lineHeight: 21,
+    color: colors.inkSoft,
   },
+
+  // success
+  successBadgeWrap: { alignItems: 'center', marginBottom: spacing.md },
   successBadge: {
     width: 76,
     height: 76,
     borderRadius: radius.pill,
-    backgroundColor: colors.sageDeep,
     alignItems: 'center',
     justifyContent: 'center',
-    ...shadows.glass,
+    ...shadows.warm,
   },
   successTitle: {
-    ...typography.display,
-    fontSize: 32,
+    ...typography.title,
     textAlign: 'center',
     marginTop: spacing.sm,
     marginBottom: spacing.sm,
   },
+  successTitleItalic: {
+    fontFamily: fonts.serifItalic,
+    color: colors.clayDeep,
+  },
   successSub: {
     ...typography.body,
+    fontSize: 16,
+    lineHeight: 26,
     textAlign: 'center',
     color: colors.inkSoft,
-    maxWidth: 520,
+    maxWidth: 540,
     alignSelf: 'center',
+  },
+  boldInk: {
+    fontFamily: fonts.sansSemibold,
+    color: colors.ink,
+  },
+  summaryEyebrow: {
+    fontFamily: fonts.sansMedium,
+    fontSize: 12,
+    color: colors.clayDeep,
+    letterSpacing: 0.6,
+    marginBottom: spacing.sm,
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    paddingVertical: spacing.sm,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.hairline,
+    gap: spacing.md,
+  },
+  summaryLabel: {
+    fontFamily: fonts.sansMedium,
+    fontSize: 12,
+    color: colors.stone,
+    letterSpacing: 0.4,
+    flex: 0,
+    minWidth: 140,
+  },
+  summaryValue: {
+    fontFamily: fonts.sansMedium,
+    fontSize: 14,
+    color: colors.ink,
+    flex: 1,
+    textAlign: 'right',
   },
   successActions: {
     flexDirection: 'row',

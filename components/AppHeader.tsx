@@ -1,11 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
-import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import type { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, gradients, radius, spacing } from '@/constants/theme';
+import { colors, fonts, radius, spacing } from '@/constants/theme';
 import { useResponsive } from '@/hooks/useResponsive';
 
 const BRAND_FULL = 'Centrum Dobrego Dialogu';
@@ -15,125 +14,104 @@ export function AppHeader({ navigation, back }: NativeStackHeaderProps) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { isSm } = useResponsive();
+  const webStyle = Platform.OS === 'web' ? ({ cursor: 'pointer' } as any) : null;
 
-  const goHome = () => {
-    // replace zamiast push: nie stackujemy home na stos aktualnej trasy
-    router.replace('/');
-  };
+  const goHome = () => router.replace('/');
 
   return (
     <View style={[styles.wrap, { paddingTop: insets.top }]}>
-      <BlurView
-        intensity={50}
-        tint="light"
-        style={StyleSheet.absoluteFill}
-      />
-      <View style={styles.tintOverlay} pointerEvents="none" />
       <View style={styles.row}>
-        <View style={styles.left}>
-          {back ? (
-            <Pressable
-              accessibilityLabel="Cofnij"
-              onPress={navigation.goBack}
-              style={({ pressed }) => [
-                styles.iconBtn,
-                pressed && styles.iconBtnPressed,
-              ]}
-            >
-              <Ionicons name="chevron-back" size={20} color={colors.ink} />
-            </Pressable>
-          ) : null}
-
+        {back ? (
           <Pressable
-            accessibilityLabel="Strona główna"
-            onPress={goHome}
-            style={({ pressed }) => [
-              styles.brand,
-              pressed && styles.brandPressed,
-            ]}
+            accessibilityLabel="Cofnij"
+            onPress={navigation.goBack}
+            style={({ pressed }) => [styles.backBtn, pressed && styles.pressed, webStyle]}
           >
-            <LinearGradient
-              colors={gradients.accent as unknown as string[]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.brandDot}
-            >
-              <Ionicons name="heart" size={12} color="#fff" />
-            </LinearGradient>
-            <Text style={styles.brandText} numberOfLines={1}>
-              {isSm ? BRAND_FULL : BRAND_SHORT}
-            </Text>
+            <Ionicons name="chevron-back" size={18} color={colors.ink} />
+            <Text style={styles.backLabel}>Wstecz</Text>
           </Pressable>
-        </View>
+        ) : (
+          <View style={{ width: 80 }} />
+        )}
 
+        <Pressable
+          accessibilityLabel="Strona główna"
+          onPress={goHome}
+          style={({ pressed }) => [styles.brand, pressed && styles.pressed, webStyle]}
+        >
+          <LinearGradient
+            colors={[colors.clay, colors.clayDeep] as unknown as string[]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.brandDot}
+          >
+            <Ionicons name="heart" size={11} color="#FFF7EC" />
+          </LinearGradient>
+          <Text style={styles.brandText} numberOfLines={1}>
+            {isSm ? BRAND_FULL : BRAND_SHORT}
+          </Text>
+        </Pressable>
+
+        <View style={{ width: 80 }} />
       </View>
+      <View style={styles.hairline} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   wrap: {
-    overflow: 'hidden',
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: 'rgba(31,27,58,0.06)',
-    backgroundColor:
-      Platform.OS === 'android' ? 'rgba(255,255,255,0.85)' : 'transparent',
-  },
-  tintOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(255,255,255,0.45)',
+    backgroundColor: colors.paperGlow,
+    ...(Platform.OS === 'web' ? { position: 'sticky' as any, top: 0, zIndex: 50 } : {}),
   },
   row: {
-    height: 56,
-    paddingHorizontal: spacing.md,
+    height: 64,
+    paddingHorizontal: spacing.lg,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: spacing.sm,
   },
-  left: {
+  backBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
-    flexShrink: 1,
-  },
-  iconBtn: {
-    width: 36,
-    height: 36,
+    gap: 4,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
     borderRadius: radius.pill,
-    backgroundColor: 'rgba(255,255,255,0.7)',
-    borderWidth: 1,
-    borderColor: colors.glassBorder,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
-  iconBtnPressed: {
-    backgroundColor: colors.bgWarm,
+  backLabel: {
+    fontFamily: fonts.sansMedium,
+    fontSize: 13,
+    color: colors.ink,
+    letterSpacing: 0.2,
   },
+
   brand: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
-    paddingVertical: 6,
-    paddingHorizontal: 6,
+    gap: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
     borderRadius: radius.pill,
-    flexShrink: 1,
-  },
-  brandPressed: {
-    opacity: 0.7,
   },
   brandDot: {
-    width: 24,
-    height: 24,
+    width: 22,
+    height: 22,
     borderRadius: radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
   },
   brandText: {
-    fontSize: 15,
-    fontWeight: '700',
+    fontFamily: fonts.serifMedium,
+    fontSize: 17,
     color: colors.ink,
     letterSpacing: -0.2,
-    flexShrink: 1,
+  },
+  pressed: { opacity: 0.6 },
+
+  hairline: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: colors.hairline,
   },
 });

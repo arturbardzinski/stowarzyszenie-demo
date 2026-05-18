@@ -1,39 +1,75 @@
+// "Ciepły dialog" — warm editorial.
+// Refined for contrast, hierarchy, and intentional italic usage.
+
 export const colors = {
-  bg: '#FAFAF7',
-  bgWarm: '#F2EEE5',
+  // surfaces — warm cream tones
+  paper: '#F8F0E3',
+  paperDeep: '#F1E5D2',
+  paperWarm: '#E8D7BC',
+  paperGlow: '#FBF4E8',
   surface: '#FFFFFF',
 
-  ink: '#1F1B3A',
-  inkSoft: '#5C5780',
-  inkMuted: '#8B86A8',
+  // ink — aubergine, warmer than pure black
+  ink: '#3B2A2E',
+  inkSoft: '#5C4448',
+  inkMuted: '#806B6A',
+  stone: '#7A6862',
+  stoneSoft: '#A89A8E',
 
-  lavender: '#A78BFA',
-  lavenderDeep: '#7C6CE0',
-  sage: '#7FBFA0',
-  sageDeep: '#5FA088',
-  peach: '#FCA5A5',
-  mint: '#A7F3D0',
-  sand: '#FDE68A',
-  sky: '#BAE6FD',
+  // primary accent — clay rose
+  // clay = filled-button background (light text on it)
+  // clayDeep = readable text on light backgrounds (passes AA on blush)
+  clay: '#C97B5C',
+  clayDeep: '#8C4830',
+  claySoft: 'rgba(201,123,92,0.14)',
+  clayHairline: 'rgba(140,72,48,0.32)',
+  blush: '#F2D9C5',
+  blushDeep: '#E5BFA3',
 
-  // glass
-  glassTint: 'rgba(255,255,255,0.55)',
-  glassTintDark: 'rgba(31,27,58,0.35)',
-  glassBorder: 'rgba(255,255,255,0.75)',
-  glassBorderDark: 'rgba(255,255,255,0.18)',
+  // secondary accent — dusty sage
+  sage: '#7E9176',
+  sageDeep: '#4D5F47',
+  sageSoft: 'rgba(126,145,118,0.16)',
+  sageHairline: 'rgba(77,95,71,0.32)',
+  sageWash: '#D8DECF',
 
-  border: 'rgba(31,27,58,0.08)',
-  shadow: 'rgba(31,27,58,0.12)',
+  // tertiary emphasis — wine (dark rose), passes AA on blush
+  wine: '#6F2E36',
+
+  // focus ring (web)
+  focus: 'rgba(140,72,48,0.45)',
+
+  // rules
+  hairline: 'rgba(59,42,46,0.12)',
+  hairlineStrong: 'rgba(59,42,46,0.20)',
+  hairlineSoft: 'rgba(59,42,46,0.06)',
+
+  // shadows — soft, warm
+  shadow: 'rgba(59,42,46,0.08)',
+  shadowSoft: 'rgba(59,42,46,0.04)',
+
+  // legacy aliases — keep older code typechecking
+  bg: '#F8F0E3',
+  bgWarm: '#F1E5D2',
+  border: 'rgba(59,42,46,0.12)',
+  copper: '#C97B5C',
+  copperDeep: '#8C4830',
+  copperSoft: 'rgba(201,123,92,0.14)',
+  copperHairline: 'rgba(140,72,48,0.32)',
 };
 
-// reusable gradient stops
-export const gradients = {
-  hero: ['#E0E7FF', '#FCE7F3', '#FEF3C7'] as const,
-  heroDeep: ['#C7D2FE', '#FBCFE8', '#FDE68A'] as const,
-  accent: ['#A78BFA', '#7FBFA0'] as const,
-  warm: ['#FDE68A', '#FCA5A5'] as const,
-  cool: ['#BAE6FD', '#A78BFA'] as const,
-  ink: ['#1F1B3A', '#3B3170'] as const,
+export const fonts = {
+  serif: 'Fraunces_400Regular',
+  serifMedium: 'Fraunces_500Medium',
+  serifSemibold: 'Fraunces_600SemiBold',
+  serifItalic: 'Fraunces_400Regular_Italic',
+  serifItalicMedium: 'Fraunces_500Medium_Italic',
+  sans: 'Geist_400Regular',
+  sansMedium: 'Geist_500Medium',
+  sansSemibold: 'Geist_600SemiBold',
+  sansBold: 'Geist_700Bold',
+  mono: 'GeistMono_400Regular',
+  monoMedium: 'GeistMono_500Medium',
 };
 
 export const spacing = {
@@ -41,43 +77,131 @@ export const spacing = {
   sm: 8,
   md: 16,
   lg: 24,
-  xl: 32,
-  xxl: 48,
-  xxxl: 64,
+  xl: 36,
+  xxl: 56,
+  xxxl: 72,
+  xxxxl: 96,
 };
 
 export const radius = {
+  none: 0,
+  xs: 6,
   sm: 10,
-  md: 16,
-  lg: 22,
+  md: 14,
+  lg: 20,
   xl: 28,
   xxl: 36,
   pill: 999,
 };
 
+// CLEAN HIERARCHY — three levels: display, title, item.
+// Each level has consistent size + line height. No micro-variants.
 export const typography = {
-  display: { fontSize: 36, fontWeight: '800' as const, color: colors.ink, letterSpacing: -0.5 },
-  title: { fontSize: 28, fontWeight: '700' as const, color: colors.ink, letterSpacing: -0.3 },
-  heading: { fontSize: 20, fontWeight: '700' as const, color: colors.ink, letterSpacing: -0.2 },
-  body: { fontSize: 16, lineHeight: 24, color: colors.ink },
-  muted: { fontSize: 14, lineHeight: 20, color: colors.inkSoft },
-  label: { fontSize: 12, lineHeight: 16, color: colors.inkMuted, letterSpacing: 0.8, fontWeight: '600' as const, textTransform: 'uppercase' as const },
+  // DISPLAY — hero only. Italic is the *one* moment of personality.
+  display: {
+    fontFamily: fonts.serif,
+    fontSize: 56,
+    lineHeight: 62,
+    color: colors.ink,
+    letterSpacing: -1,
+  },
+  displayItalic: {
+    fontFamily: fonts.serifItalic,
+    fontSize: 56,
+    lineHeight: 62,
+    color: colors.ink,
+    letterSpacing: -1,
+  },
+  // SECTION — top of a content block.
+  title: {
+    fontFamily: fonts.serif,
+    fontSize: 34,
+    lineHeight: 42,
+    color: colors.ink,
+    letterSpacing: -0.5,
+  },
+  // ITEM heading — for cards, blocks. No italic by default.
+  heading: {
+    fontFamily: fonts.serifMedium,
+    fontSize: 22,
+    lineHeight: 30,
+    color: colors.ink,
+    letterSpacing: -0.2,
+  },
+  subhead: {
+    fontFamily: fonts.serifMedium,
+    fontSize: 18,
+    lineHeight: 26,
+    color: colors.ink,
+    letterSpacing: -0.1,
+  },
+  body: {
+    fontFamily: fonts.sans,
+    fontSize: 16,
+    lineHeight: 26,
+    color: colors.ink,
+  },
+  bodyLarge: {
+    fontFamily: fonts.sans,
+    fontSize: 18,
+    lineHeight: 30,
+    color: colors.inkSoft,
+  },
+  muted: {
+    fontFamily: fonts.sans,
+    fontSize: 14,
+    lineHeight: 22,
+    color: colors.stone,
+  },
+  caption: {
+    fontFamily: fonts.sans,
+    fontSize: 12,
+    lineHeight: 18,
+    color: colors.stone,
+  },
+  label: {
+    fontFamily: fonts.sansMedium,
+    fontSize: 12,
+    lineHeight: 16,
+    color: colors.clayDeep,
+    letterSpacing: 0.4,
+  },
+  formLabel: {
+    fontFamily: fonts.sansMedium,
+    fontSize: 12,
+    lineHeight: 16,
+    color: colors.stone,
+    letterSpacing: 0.4,
+  },
+  button: {
+    fontFamily: fonts.sansMedium,
+    fontSize: 14,
+    lineHeight: 18,
+    letterSpacing: 0.3,
+  },
 };
 
 export const shadows = {
   soft: {
     shadowColor: colors.ink,
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 4,
+    shadowOpacity: 0.06,
+    shadowRadius: 24,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 3,
   },
   glass: {
     shadowColor: colors.ink,
-    shadowOpacity: 0.12,
-    shadowRadius: 24,
-    shadowOffset: { width: 0, height: 12 },
-    elevation: 8,
+    shadowOpacity: 0.08,
+    shadowRadius: 30,
+    shadowOffset: { width: 0, height: 14 },
+    elevation: 5,
+  },
+  warm: {
+    shadowColor: colors.clayDeep,
+    shadowOpacity: 0.22,
+    shadowRadius: 28,
+    shadowOffset: { width: 0, height: 16 },
+    elevation: 6,
   },
 };
 
@@ -87,4 +211,10 @@ export const breakpoints = {
   lg: 1024,
 };
 
-export const maxContentWidth = 720;
+export const maxContentWidth = 680;
+
+// Web-only paper grain
+export const noiseDataUri =
+  "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.5 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.45'/></svg>\")";
+
+export const paperGrainOpacity = 0.05;

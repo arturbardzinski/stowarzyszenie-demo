@@ -1,35 +1,59 @@
+import { Platform, StyleSheet, View, ViewStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { StyleSheet, View, ViewStyle } from 'react-native';
-import { gradients } from '@/constants/theme';
+import { colors, noiseDataUri, paperGrainOpacity } from '@/constants/theme';
 
 type Props = {
+  // back-compat — value ignored
   colors?: readonly [string, string, ...string[]];
   children?: React.ReactNode;
   style?: ViewStyle;
   blobs?: boolean;
+  tone?: 'paper' | 'warm' | 'sage';
 };
 
-export function GradientBackground({
-  colors = gradients.hero,
-  children,
-  style,
-  blobs = false,
-}: Props) {
+// Warm editorial background. Four organic blobs visible enough to *feel*
+// without overwhelming. Cream wash + grain.
+export function GradientBackground({ children, style, tone = 'paper', blobs = true }: Props) {
+  const bg = tone === 'warm' ? colors.paperGlow : colors.paper;
+
   return (
-    <View style={[StyleSheet.absoluteFill, style]} pointerEvents="none">
+    <View style={[StyleSheet.absoluteFill, { backgroundColor: bg }, style]} pointerEvents="none">
+      {/* Subtle vertical wash for depth */}
       <LinearGradient
-        colors={colors as unknown as string[]}
+        colors={[colors.paperGlow, colors.paper, colors.paperDeep] as unknown as string[]}
         start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+        end={{ x: 0, y: 1 }}
         style={StyleSheet.absoluteFill}
       />
+
+      {/* Organic warm blobs — stronger presence */}
       {blobs ? (
         <>
           <View style={[styles.blob, styles.blobA]} />
           <View style={[styles.blob, styles.blobB]} />
           <View style={[styles.blob, styles.blobC]} />
+          <View style={[styles.blob, styles.blobD]} />
         </>
       ) : null}
+
+      {/* Web-only paper grain noise overlay */}
+      {Platform.OS === 'web' ? (
+        <View
+          style={
+            {
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundImage: noiseDataUri,
+              opacity: paperGrainOpacity,
+              pointerEvents: 'none',
+            } as any
+          }
+        />
+      ) : null}
+
       {children}
     </View>
   );
@@ -38,29 +62,42 @@ export function GradientBackground({
 const styles = StyleSheet.create({
   blob: {
     position: 'absolute',
-    borderRadius: 999,
-    opacity: 0.5,
+    borderRadius: 9999,
   },
+  // top-right — warm blush, biggest
   blobA: {
+    width: 620,
+    height: 620,
+    top: -220,
+    right: -200,
+    backgroundColor: colors.blushDeep,
+    opacity: 0.65,
+  },
+  // bottom-left — dusty sage
+  blobB: {
+    width: 460,
+    height: 460,
+    bottom: -140,
+    left: -160,
+    backgroundColor: colors.sageWash,
+    opacity: 0.55,
+  },
+  // mid-right — soft blush
+  blobC: {
     width: 320,
     height: 320,
-    backgroundColor: '#C7D2FE',
-    top: -100,
-    right: -120,
+    top: '38%',
+    right: '-12%',
+    backgroundColor: colors.blush,
+    opacity: 0.55,
   },
-  blobB: {
-    width: 260,
-    height: 260,
-    backgroundColor: '#FBCFE8',
-    bottom: -80,
-    left: -80,
-  },
-  blobC: {
-    width: 200,
-    height: 200,
-    backgroundColor: '#FDE68A',
-    top: '40%',
-    left: '60%',
-    opacity: 0.35,
+  // top-left subtle — paper warm
+  blobD: {
+    width: 280,
+    height: 280,
+    top: '8%',
+    left: '-8%',
+    backgroundColor: colors.paperWarm,
+    opacity: 0.5,
   },
 });

@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View, ViewStyle } from 'react-native';
-import { colors, radius, spacing } from '@/constants/theme';
+import { colors, fonts, radius, spacing } from '@/constants/theme';
 
-type Tone = 'lavender' | 'sage' | 'peach' | 'sand' | 'sky' | 'ink';
+type Tone = 'clay' | 'sage' | 'ink' | 'blush' | 'lavender' | 'peach' | 'sand' | 'sky';
 
 type Props = {
   label: string;
@@ -9,34 +9,51 @@ type Props = {
   style?: ViewStyle;
 };
 
-const toneStyles: Record<Tone, { bg: string; fg: string }> = {
-  lavender: { bg: '#EDE9FE', fg: '#5B21B6' },
-  sage: { bg: '#D1FAE5', fg: '#065F46' },
-  peach: { bg: '#FFE4E1', fg: '#9B2226' },
-  sand: { bg: '#FEF3C7', fg: '#92400E' },
-  sky: { bg: '#E0F2FE', fg: '#075985' },
-  ink: { bg: '#E5E7EB', fg: colors.ink },
+const toneStyles: Record<Tone, { bg: string; fg: string; dot: string; border: string }> = {
+  clay: { bg: colors.blush, fg: colors.clayDeep, dot: colors.clay, border: colors.clayHairline },
+  sage: { bg: colors.sageWash, fg: colors.sageDeep, dot: colors.sage, border: colors.sageHairline },
+  ink: { bg: colors.paperWarm, fg: colors.ink, dot: colors.ink, border: colors.hairlineStrong },
+  blush: { bg: colors.blush, fg: colors.wine, dot: colors.wine, border: colors.clayHairline },
+  // legacy aliases
+  lavender: { bg: colors.blush, fg: colors.clayDeep, dot: colors.clay, border: colors.clayHairline },
+  peach: { bg: colors.blush, fg: colors.clayDeep, dot: colors.clay, border: colors.clayHairline },
+  sand: { bg: colors.paperWarm, fg: colors.ink, dot: colors.stone, border: colors.hairlineStrong },
+  sky: { bg: colors.sageWash, fg: colors.sageDeep, dot: colors.sage, border: colors.sageHairline },
 };
 
-export function Pill({ label, tone = 'lavender', style }: Props) {
+export function Pill({ label, tone = 'clay', style }: Props) {
   const t = toneStyles[tone];
   return (
-    <View style={[styles.base, { backgroundColor: t.bg }, style]}>
-      <Text style={[styles.text, { color: t.fg }]}>{label}</Text>
+    <View
+      style={[
+        styles.base,
+        { backgroundColor: t.bg, borderColor: t.border },
+        style,
+      ]}
+    >
+      <View style={[styles.dot, { backgroundColor: t.dot }]} />
+      <Text style={[styles.text, { color: t.fg }]} numberOfLines={1}>
+        {label}
+      </Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   base: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
     paddingHorizontal: spacing.md,
-    paddingVertical: 6,
+    paddingVertical: 7,
     borderRadius: radius.pill,
     alignSelf: 'flex-start',
+    borderWidth: StyleSheet.hairlineWidth,
   },
+  dot: { width: 6, height: 6, borderRadius: 999 },
   text: {
-    fontSize: 13,
-    fontWeight: '600',
-    letterSpacing: 0.2,
+    fontFamily: fonts.sansMedium,
+    fontSize: 12,
+    letterSpacing: 0.4,
   },
 });

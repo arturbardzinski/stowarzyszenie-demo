@@ -1,25 +1,32 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Pressable, StyleSheet, Text, ViewStyle } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, ViewStyle } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
+  withTiming,
 } from 'react-native-reanimated';
-import { colors, gradients, radius, shadows, spacing } from '@/constants/theme';
+import { colors, fonts, radius, shadows, spacing } from '@/constants/theme';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 type Props = {
   label: string;
   onPress: () => void;
-  variant?: 'primary' | 'ghost' | 'glass';
+  variant?: 'primary' | 'ghost' | 'glass' | 'copper' | 'soft';
   icon?: keyof typeof Ionicons.glyphMap;
   iconRight?: keyof typeof Ionicons.glyphMap;
   style?: ViewStyle;
   fullWidth?: boolean;
+  rounded?: 'pill' | 'md';
 };
 
+// Warm buttons with web hover + focus states:
+// - primary / copper:  filled clay rose gradient
+// - glass:             cream surface with hairline border
+// - soft:              blush surface (warm secondary)
+// - ghost:             text-only chevron
 export function GradientButton({
   label,
   onPress,
@@ -28,10 +35,14 @@ export function GradientButton({
   iconRight,
   style,
   fullWidth = false,
+  rounded = 'pill',
 }: Props) {
   const scale = useSharedValue(1);
+  const hoverOpacity = useSharedValue(1);
+
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
+    opacity: hoverOpacity.value,
   }));
 
   const onPressIn = () => {
@@ -40,101 +51,128 @@ export function GradientButton({
   const onPressOut = () => {
     scale.value = withSpring(1, { damping: 15, stiffness: 220 });
   };
+  const onHoverIn = () => {
+    hoverOpacity.value = withTiming(0.88, { duration: 140 });
+  };
+  const onHoverOut = () => {
+    hoverOpacity.value = withTiming(1, { duration: 140 });
+  };
 
-  if (variant === 'ghost') {
+  const radiusValue = rounded === 'md' ? radius.md : radius.pill;
+  const isFilled = variant === 'primary' || variant === 'copper';
+  const isSoft = variant === 'soft';
+
+  const labelColor = (() => {
+    if (isFilled) return '#FFF7EC';
+    if (variant === 'ghost') return colors.clayDeep;
+    if (isSoft) return colors.clayDeep;
+    return colors.ink;
+  })();
+
+  // Web-only style additions — cursor + focus outline
+  const webStyle = Platform.OS === 'web' ? (webButtonStyle as any) : null;
+
+  if (isFilled) {
     return (
       <AnimatedPressable
+        accessibilityRole="button"
         onPress={onPress}
         onPressIn={onPressIn}
         onPressOut={onPressOut}
+        onHoverIn={onHoverIn}
+        onHoverOut={onHoverOut}
         style={[
-          styles.base,
-          styles.ghost,
+          styles.shadowWrap,
+          { borderRadius: radiusValue },
           fullWidth && styles.fullWidth,
           animatedStyle,
+          webStyle,
           style,
         ]}
       >
-        {icon ? <Ionicons name={icon} size={18} color={colors.ink} style={styles.iconLeft} /> : null}
-        <Text style={[styles.label, { color: colors.ink }]}>{label}</Text>
-        {iconRight ? <Ionicons name={iconRight} size={18} color={colors.ink} style={styles.iconRight} /> : null}
+        <LinearGradient
+          colors={[colors.clay, colors.clayDeep] as unknown as string[]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={[styles.base, { borderRadius: radiusValue }]}
+        >
+          {icon ? <Ionicons name={icon} size={16} color={labelColor} style={styles.iconLeft} /> : null}
+          <Text style={[styles.label, { color: labelColor }]}>{label}</Text>
+          {iconRight ? <Ionicons name={iconRight} size={16} color={labelColor} style={styles.iconRight} /> : null}
+        </LinearGradient>
       </AnimatedPressable>
     );
   }
 
-  if (variant === 'glass') {
-    return (
-      <AnimatedPressable
-        onPress={onPress}
-        onPressIn={onPressIn}
-        onPressOut={onPressOut}
-        style={[
-          styles.base,
-          styles.glass,
-          fullWidth && styles.fullWidth,
-          animatedStyle,
-          style,
-        ]}
-      >
-        {icon ? <Ionicons name={icon} size={18} color={colors.ink} style={styles.iconLeft} /> : null}
-        <Text style={[styles.label, { color: colors.ink }]}>{label}</Text>
-        {iconRight ? <Ionicons name={iconRight} size={18} color={colors.ink} style={styles.iconRight} /> : null}
-      </AnimatedPressable>
-    );
-  }
+  let surface: any = styles.glass;
+  if (variant === 'ghost') surface = styles.ghost;
+  if (isSoft) surface = styles.soft;
 
   return (
     <AnimatedPressable
+      accessibilityRole="button"
       onPress={onPress}
       onPressIn={onPressIn}
       onPressOut={onPressOut}
-      style={[styles.shadowWrap, fullWidth && styles.fullWidth, animatedStyle, style]}
+      onHoverIn={onHoverIn}
+      onHoverOut={onHoverOut}
+      style={[
+        styles.base,
+        surface,
+        { borderRadius: radiusValue },
+        fullWidth && styles.fullWidth,
+        animatedStyle,
+        webStyle,
+        style,
+      ]}
     >
-      <LinearGradient
-        colors={gradients.accent as unknown as string[]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={[styles.base, styles.primary]}
-      >
-        {icon ? <Ionicons name={icon} size={18} color="#fff" style={styles.iconLeft} /> : null}
-        <Text style={[styles.label, styles.labelPrimary]}>{label}</Text>
-        {iconRight ? <Ionicons name={iconRight} size={18} color="#fff" style={styles.iconRight} /> : null}
-      </LinearGradient>
+      {icon ? <Ionicons name={icon} size={16} color={labelColor} style={styles.iconLeft} /> : null}
+      <Text style={[styles.label, { color: labelColor }]}>{label}</Text>
+      {iconRight ? <Ionicons name={iconRight} size={16} color={labelColor} style={styles.iconRight} /> : null}
     </AnimatedPressable>
   );
 }
 
+const webButtonStyle = {
+  cursor: 'pointer',
+  outlineStyle: 'solid',
+  outlineWidth: 0,
+  outlineColor: colors.focus,
+  outlineOffset: 2,
+  transition: 'outline-width 120ms ease',
+};
+
 const styles = StyleSheet.create({
   shadowWrap: {
-    borderRadius: radius.pill,
-    ...shadows.soft,
+    ...shadows.warm,
   },
   base: {
     paddingVertical: 14,
     paddingHorizontal: spacing.lg,
-    borderRadius: radius.pill,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  primary: {},
+  glass: {
+    backgroundColor: colors.surface,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.hairlineStrong,
+  },
+  soft: {
+    backgroundColor: colors.blush,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.clayHairline,
+  },
   ghost: {
     backgroundColor: 'transparent',
-    borderWidth: 1.5,
-    borderColor: colors.border,
-  },
-  glass: {
-    backgroundColor: 'rgba(255,255,255,0.65)',
-    borderWidth: 1,
-    borderColor: colors.glassBorder,
+    paddingHorizontal: spacing.sm,
   },
   fullWidth: { width: '100%' },
   label: {
-    fontSize: 16,
-    fontWeight: '700',
-    letterSpacing: 0.1,
+    fontFamily: fonts.sansMedium,
+    fontSize: 14,
+    letterSpacing: 0.3,
   },
-  labelPrimary: { color: '#FFFFFF' },
   iconLeft: { marginRight: 8 },
   iconRight: { marginLeft: 8 },
 });

@@ -1,68 +1,74 @@
-import { BlurView } from 'expo-blur';
-import { Platform, StyleSheet, View, ViewStyle } from 'react-native';
+import { StyleSheet, View, ViewStyle } from 'react-native';
 import { colors, radius, shadows, spacing } from '@/constants/theme';
 
 type Props = {
   children: React.ReactNode;
-  intensity?: number;
-  tint?: 'light' | 'dark' | 'default';
+  intensity?: number; // back-compat, unused
+  tint?: 'light' | 'dark' | 'default'; // back-compat
   style?: ViewStyle;
   padding?: keyof typeof spacing | number;
   rounded?: keyof typeof radius;
+  variant?: 'paper' | 'outlined' | 'ink' | 'blush';
 };
 
+// Warm card with soft rounded corners. Subtle warm shadow gives it lift
+// without feeling heavy. "blush" is a soft rose tint for accents.
 export function GlassCard({
   children,
-  intensity = 40,
-  tint = 'light',
   style,
   padding = 'lg',
   rounded = 'lg',
+  variant = 'paper',
 }: Props) {
   const padValue = typeof padding === 'number' ? padding : spacing[padding];
-  const radiusValue = radius[rounded];
+  const rad = radius[rounded];
 
-  const content = (
-    <View style={{ padding: padValue }}>{children}</View>
-  );
+  let surfaceStyle: ViewStyle;
+  switch (variant) {
+    case 'ink':
+      surfaceStyle = styles.ink;
+      break;
+    case 'outlined':
+      surfaceStyle = styles.outlined;
+      break;
+    case 'blush':
+      surfaceStyle = styles.blush;
+      break;
+    default:
+      surfaceStyle = styles.paper;
+  }
 
-  // BlurView works on web via CSS backdrop-filter (Safari/Chromium)
   return (
     <View
       style={[
-        styles.wrap,
-        { borderRadius: radiusValue },
-        shadows.glass,
+        surfaceStyle,
+        { padding: padValue, borderRadius: rad },
+        shadows.soft,
         style,
       ]}
     >
-      <BlurView
-        intensity={intensity}
-        tint={tint}
-        style={[StyleSheet.absoluteFill, { borderRadius: radiusValue, overflow: 'hidden' }]}
-      />
-      <View
-        style={[
-          StyleSheet.absoluteFill,
-          {
-            borderRadius: radiusValue,
-            backgroundColor:
-              tint === 'dark' ? colors.glassTintDark : colors.glassTint,
-            borderWidth: Platform.OS === 'web' ? 1 : StyleSheet.hairlineWidth,
-            borderColor:
-              tint === 'dark' ? colors.glassBorderDark : colors.glassBorder,
-          },
-        ]}
-        pointerEvents="none"
-      />
-      {content}
+      {children}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: {
-    overflow: 'hidden',
+  paper: {
+    backgroundColor: colors.surface,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.hairline,
+  },
+  outlined: {
     backgroundColor: 'transparent',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.hairlineStrong,
+  },
+  ink: {
+    backgroundColor: colors.ink,
+  },
+  blush: {
+    backgroundColor: colors.blush,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.clayHairline,
   },
 });
