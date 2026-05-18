@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AnimatedFade } from '@/components/AnimatedFade';
 import { GlassCard } from '@/components/GlassCard';
@@ -14,10 +14,39 @@ const EMAIL = 'kontakt@centrumdobregodialogu.pl';
 const PHONE = '+48 600 123 456';
 const ADDRESS = 'ul. Spokojna 12, 00-001 Warszawa';
 
+const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ADDRESS)}`;
+
 const rows = [
-  { icon: 'mail-outline' as const, label: 'E-mail', value: EMAIL, tone: '#EDE9FE', fg: '#7C3AED' },
-  { icon: 'call-outline' as const, label: 'Telefon', value: PHONE, tone: '#D1FAE5', fg: '#059669' },
-  { icon: 'location-outline' as const, label: 'Adres gabinetu', value: ADDRESS, tone: '#FEF3C7', fg: '#B45309' },
+  {
+    icon: 'mail-outline' as const,
+    label: 'E-mail',
+    value: EMAIL,
+    tone: '#EDE9FE',
+    fg: '#7C3AED',
+    actionLabel: 'Napisz wiadomość',
+    actionIcon: 'arrow-up-outline' as const,
+    onPress: () => Linking.openURL(`mailto:${EMAIL}`),
+  },
+  {
+    icon: 'call-outline' as const,
+    label: 'Telefon',
+    value: PHONE,
+    tone: '#D1FAE5',
+    fg: '#059669',
+    actionLabel: 'Zadzwoń',
+    actionIcon: 'arrow-up-outline' as const,
+    onPress: () => Linking.openURL(`tel:${PHONE.replace(/\s+/g, '')}`),
+  },
+  {
+    icon: 'location-outline' as const,
+    label: 'Adres gabinetu',
+    value: ADDRESS,
+    tone: '#FEF3C7',
+    fg: '#B45309',
+    actionLabel: 'Otwórz w Google Maps',
+    actionIcon: 'navigate-outline' as const,
+    onPress: () => Linking.openURL(mapsUrl),
+  },
 ];
 
 export default function ContactScreen() {
@@ -45,13 +74,23 @@ export default function ContactScreen() {
                     key={r.label}
                     style={[styles.gridItem, isMd && styles.gridItemThird]}
                   >
-                    <View style={styles.contactCard}>
+                    <Pressable
+                      onPress={r.onPress}
+                      style={({ pressed }) => [
+                        styles.contactCard,
+                        pressed && styles.contactCardPressed,
+                      ]}
+                    >
                       <View style={[styles.icon, { backgroundColor: r.tone }]}>
                         <Ionicons name={r.icon} size={22} color={r.fg} />
                       </View>
                       <Text style={styles.rowLabel}>{r.label}</Text>
                       <Text style={styles.rowValue}>{r.value}</Text>
-                    </View>
+                      <View style={styles.actionHint}>
+                        <Ionicons name={r.actionIcon} size={14} color={colors.lavenderDeep} />
+                        <Text style={styles.actionHintText}>{r.actionLabel}</Text>
+                      </View>
+                    </Pressable>
                   </View>
                 ))}
               </View>
@@ -67,6 +106,12 @@ export default function ContactScreen() {
                   variant="glass"
                   icon="call-outline"
                   onPress={() => Linking.openURL(`tel:${PHONE.replace(/\s+/g, '')}`)}
+                />
+                <GradientButton
+                  label="Trasa dojazdu"
+                  variant="ghost"
+                  icon="navigate-outline"
+                  onPress={() => Linking.openURL(mapsUrl)}
                 />
               </View>
 
@@ -111,6 +156,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
+  contactCardPressed: {
+    backgroundColor: colors.bgWarm,
+    borderColor: colors.lavenderDeep,
+  },
   icon: {
     width: 40,
     height: 40,
@@ -129,6 +178,18 @@ const styles = StyleSheet.create({
     color: colors.ink,
     fontWeight: '700',
     letterSpacing: -0.2,
+  },
+  actionHint: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: spacing.sm,
+  },
+  actionHintText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: colors.lavenderDeep,
+    letterSpacing: 0.3,
   },
   actions: {
     flexDirection: 'row',
