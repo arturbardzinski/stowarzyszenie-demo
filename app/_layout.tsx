@@ -22,6 +22,7 @@ export default function RootLayout() {
         <Stack.Screen name="contact" options={{ title: 'Kontakt' }} />
         <Stack.Screen name="psychologists/index" options={{ title: 'Psychologowie' }} />
         <Stack.Screen name="psychologists/[id]" options={{ title: '' }} />
+        <Stack.Screen name="book/[id]" options={{ title: 'Umów konsultację' }} />
       </Stack>
     </>
   );

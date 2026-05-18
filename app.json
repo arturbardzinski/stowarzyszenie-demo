@@ -30,7 +30,6 @@
     },
     "plugins": ["expo-router"],
     "experiments": {
-      "typedRoutes": true,
       "baseUrl": "/stowarzyszenie-demo"
     }
   }

@@ -97,7 +97,7 @@ export default function PsychologistDetailScreen() {
                 label="Umów konsultację"
                 icon="calendar-outline"
                 iconRight="arrow-forward"
-                onPress={() => router.push('/contact')}
+                onPress={() => router.push(`/book/${person.id}`)}
                 style={{ marginTop: spacing.md }}
               />
 

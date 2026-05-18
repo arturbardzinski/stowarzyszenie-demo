@@ -6,4 +6,10 @@ export type Psychologist = {
   experience: string;
   areas: string[];
   photo: string;
+  directEmail: string;
+  directPhone: string;
+  consultationFormats: string[];
+  availability: string;
+  consultationDuration: string;
+  price: string;
 };
