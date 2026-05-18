@@ -1,10 +1,4 @@
 {
   "typescript.tsdk": "node_modules/typescript/lib",
-  "typescript.enablePromptUseWorkspaceTsdk": true,
-  "typescript.preferences.importModuleSpecifier": "non-relative",
-  "editor.formatOnSave": false,
-  "files.exclude": {
-    "**/.expo": true,
-    "**/dist": true
-  }
+  "typescript.preferences.importModuleSpecifier": "non-relative"
 }
