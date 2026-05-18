@@ -15,6 +15,10 @@ import type { Psychologist } from '@/types/psychologist';
 
 const data = psychologists as Psychologist[];
 
+export async function generateStaticParams(): Promise<Record<string, string>[]> {
+  return data.map((p) => ({ id: p.id }));
+}
+
 const accentByIndex = [
   gradients.cool,
   gradients.warm,

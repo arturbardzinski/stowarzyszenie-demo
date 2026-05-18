@@ -78,37 +78,49 @@ eas build --platform ios       # .ipa
 eas build --platform all
 ```
 
-## Deploy webowy (publiczny link do podglądu)
+## Deploy webowy — GitHub Actions → GitHub Pages
 
-### Vercel (rekomendowane — działa z prywatnym repo, free plan)
+W `.github/workflows/deploy.yml` jest workflow, który po każdym push na `main`:
 
-1. Wypchnij repo na GitHub (instrukcja niżej).
-2. Wejdź na <https://vercel.com/new> → **Import Git Repository** → wybierz `stowarzyszenie-demo`.
-3. Vercel wykryje `vercel.json` i zbuduje: `expo export --platform web`, output `dist`.
-4. Po ~2 minutach dostajesz URL typu `https://stowarzyszenie-demo.vercel.app` — działa publicznie, link można wysłać znajomym.
+1. instaluje deps (`npm ci`)
+2. buduje statyczny web (`npx expo export --platform web`)
+3. wrzuca artefakt do GitHub Pages
 
-Albo z CLI (jednorazowy login w przeglądarce):
+**Publiczny URL:** `https://arturbardzinski.github.io/stowarzyszenie-demo/`
+
+### Wymagania
+
+- repo **publiczne** (GH Pages na free planie nie obsługuje deployu z prywatnego)
+- włączone Pages w trybie `workflow` (jednorazowo, przez API lub Settings → Pages → Source = GitHub Actions)
+- w `app.json` ustawione `experiments.baseUrl: "/stowarzyszenie-demo"` — bo Pages serwuje pod ścieżką projektu, nie pod rootem
+- dynamiczna trasa `psychologists/[id].tsx` eksportuje `generateStaticParams()` (4 konkretne strony zamiast jednego templata)
+- workflow kopiuje `index.html` → `404.html` jako SPA fallback dla nieznanych ścieżek
+
+### Włączenie Pages (jednorazowo)
+
+Przez `gh`:
 
 ```bash
-npx vercel login
-npx vercel --prod
+gh api -X POST repos/<user>/stowarzyszenie-demo/pages -f build_type=workflow
 ```
 
-### Alternatywy
+albo Settings → Pages → Source = **GitHub Actions**.
 
-- **Netlify** — `npx netlify deploy --build --prod` (auto-detekcja, free plan)
-- **Cloudflare Pages** — connect repo w panelu, build command `expo export --platform web`, output `dist`
-- **Surge.sh** — `npx expo export --platform web && npx surge dist nazwa.surge.sh` (bez konta Git, tylko email)
+### Logi i ponowny deploy
 
-> **GitHub Pages** wymaga płatnego planu, żeby serwować z repo prywatnego — pomiń.
+```bash
+gh run list --workflow deploy.yml
+gh run watch
+gh workflow run deploy.yml   # ręczny trigger
+```
 
-## Wrzucenie na GitHub (prywatne repo)
+## Wrzucenie na GitHub
 
 ```bash
 git init
 git add .
 git commit -m "Initial commit"
-gh repo create stowarzyszenie-demo --private --source=. --remote=origin --push
+gh repo create stowarzyszenie-demo --public --source=. --remote=origin --push
 ```
 
 ## Co dodać w kolejnej wersji
