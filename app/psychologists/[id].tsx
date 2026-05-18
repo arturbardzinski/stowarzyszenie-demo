@@ -26,12 +26,17 @@ const accentByIndex = [
   gradients.heroDeep,
 ] as const;
 
+function pickAccent(i: number) {
+  const safe = i < 0 ? 0 : i % accentByIndex.length;
+  return accentByIndex[safe] ?? accentByIndex[0]!;
+}
+
 export default function PsychologistDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const index = data.findIndex((p) => p.id === id);
   const person = index >= 0 ? data[index] : undefined;
-  const accent = accentByIndex[(index < 0 ? 0 : index) % accentByIndex.length];
+  const accent = pickAccent(index);
 
   if (!person) {
     return (

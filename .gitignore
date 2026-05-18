@@ -8,5 +8,7 @@ web-build/
 !.env.example
 ios/
 android/
-.vscode/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
 expo-env.d.ts

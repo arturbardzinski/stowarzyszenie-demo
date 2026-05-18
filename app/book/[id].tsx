@@ -37,6 +37,11 @@ const accentByIndex = [
   gradients.heroDeep,
 ] as const;
 
+function pickAccent(i: number) {
+  const safe = i < 0 ? 0 : i % accentByIndex.length;
+  return accentByIndex[safe] ?? accentByIndex[0]!;
+}
+
 type ContactPref = 'email' | 'phone';
 
 export default function BookScreen() {
@@ -44,7 +49,7 @@ export default function BookScreen() {
   const router = useRouter();
   const index = data.findIndex((p) => p.id === id);
   const person = index >= 0 ? data[index] : undefined;
-  const accent = accentByIndex[(index < 0 ? 0 : index) % accentByIndex.length];
+  const accent = pickAccent(index);
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -304,8 +309,8 @@ function Field({
   ...rest
 }: React.ComponentProps<typeof TextInput> & {
   label: string;
-  error?: string;
-  multiline?: boolean;
+  error?: string | undefined;
+  multiline?: boolean | undefined;
 }) {
   return (
     <View style={{ marginBottom: spacing.md }}>

@@ -42,7 +42,8 @@ export function ProfileCard({ psychologist, index = 0, onPress, style }: Props) 
     elevate.value = withSpring(0, { damping: 18, stiffness: 240 });
   };
 
-  const accent = accentByIndex[index % accentByIndex.length];
+  const accent =
+    accentByIndex[index % accentByIndex.length] ?? accentByIndex[0]!;
 
   return (
     <AnimatedPressable
