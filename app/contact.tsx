@@ -81,11 +81,13 @@ export default function ContactScreen() {
                         pressed && styles.contactCardPressed,
                       ]}
                     >
-                      <View style={[styles.icon, { backgroundColor: r.tone }]}>
-                        <Ionicons name={r.icon} size={22} color={r.fg} />
+                      <View style={styles.contactCardTop}>
+                        <View style={[styles.icon, { backgroundColor: r.tone }]}>
+                          <Ionicons name={r.icon} size={22} color={r.fg} />
+                        </View>
+                        <Text style={styles.rowLabel}>{r.label}</Text>
+                        <Text style={styles.rowValue}>{r.value}</Text>
                       </View>
-                      <Text style={styles.rowLabel}>{r.label}</Text>
-                      <Text style={styles.rowValue}>{r.value}</Text>
                       <View style={styles.actionHint}>
                         <Ionicons name={r.actionIcon} size={14} color={colors.lavenderDeep} />
                         <Text style={styles.actionHintText}>{r.actionLabel}</Text>
@@ -146,15 +148,21 @@ const styles = StyleSheet.create({
     maxWidth: 560,
   },
   grid: { gap: spacing.md, marginBottom: spacing.lg },
-  gridRow: { flexDirection: 'row', flexWrap: 'wrap' },
+  gridRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'stretch' },
   gridItem: { width: '100%' },
-  gridItemThird: { flex: 1, minWidth: 200 },
+  gridItemThird: { flex: 1, minWidth: 200, alignSelf: 'stretch' },
   contactCard: {
+    flex: 1,
     backgroundColor: colors.surface,
     borderRadius: radius.xl,
     padding: spacing.lg,
     borderWidth: 1,
     borderColor: colors.border,
+    minHeight: 200,
+    justifyContent: 'space-between',
+  },
+  contactCardTop: {
+    // group icon + label + value so actionHint sits at the bottom
   },
   contactCardPressed: {
     backgroundColor: colors.bgWarm,
