@@ -45,7 +45,7 @@ export default function HomeScreen() {
   return (
     <View style={styles.root}>
       <GradientBackground colors={gradients.hero} blobs />
-      <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
+      <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           <AnimatedFade>
             <ResponsiveContainer>
@@ -171,7 +171,7 @@ function FeatureCard({
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.bg },
   scroll: {
-    paddingTop: spacing.xxl,
+    paddingTop: spacing.lg,
     paddingBottom: spacing.xxxl,
   },
   eyebrowRow: { marginBottom: spacing.md },

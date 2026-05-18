@@ -1,5 +1,6 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { AppHeader } from '@/components/AppHeader';
 import { colors } from '@/constants/theme';
 
 export default function RootLayout() {
@@ -8,21 +9,17 @@ export default function RootLayout() {
       <StatusBar style="dark" />
       <Stack
         screenOptions={{
-          headerTransparent: true,
-          headerBlurEffect: 'light',
-          headerTintColor: colors.ink,
-          headerTitleStyle: { fontWeight: '700' },
-          headerShadowVisible: false,
+          header: (props) => <AppHeader {...props} />,
           contentStyle: { backgroundColor: colors.bg },
           animation: 'default',
         }}
       >
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="about" options={{ title: 'O nas' }} />
-        <Stack.Screen name="contact" options={{ title: 'Kontakt' }} />
-        <Stack.Screen name="psychologists/index" options={{ title: 'Psychologowie' }} />
-        <Stack.Screen name="psychologists/[id]" options={{ title: '' }} />
-        <Stack.Screen name="book/[id]" options={{ title: 'Umów konsultację' }} />
+        <Stack.Screen name="index" />
+        <Stack.Screen name="about" />
+        <Stack.Screen name="contact" />
+        <Stack.Screen name="psychologists/index" />
+        <Stack.Screen name="psychologists/[id]" />
+        <Stack.Screen name="book/[id]" />
       </Stack>
     </>
   );

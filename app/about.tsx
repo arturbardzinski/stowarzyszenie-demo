@@ -102,7 +102,7 @@ export default function AboutScreen() {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.bg },
   scroll: {
-    paddingTop: 96,
+    paddingTop: spacing.lg,
     paddingBottom: spacing.xxxl,
   },
   title: {

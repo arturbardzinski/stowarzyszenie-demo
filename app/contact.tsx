@@ -134,7 +134,7 @@ export default function ContactScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.bg },
-  scroll: { paddingTop: 96, paddingBottom: spacing.xxxl },
+  scroll: { paddingTop: spacing.lg, paddingBottom: spacing.xxxl },
   title: {
     ...typography.display,
     fontSize: 38,
