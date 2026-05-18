@@ -66,21 +66,6 @@ export function AppHeader({ navigation, back }: NativeStackHeaderProps) {
           </Pressable>
         </View>
 
-        {back ? (
-          <View style={styles.right}>
-            <Pressable
-              accessibilityLabel="Strona główna"
-              onPress={goHome}
-              style={({ pressed }) => [
-                styles.homePill,
-                pressed && styles.homePillPressed,
-              ]}
-            >
-              <Ionicons name="home-outline" size={16} color={colors.ink} />
-              {isSm ? <Text style={styles.homePillText}>Home</Text> : null}
-            </Pressable>
-          </View>
-        ) : null}
       </View>
     </View>
   );
@@ -111,10 +96,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.sm,
     flexShrink: 1,
-  },
-  right: {
-    flexDirection: 'row',
-    alignItems: 'center',
   },
   iconBtn: {
     width: 36,
@@ -154,25 +135,5 @@ const styles = StyleSheet.create({
     color: colors.ink,
     letterSpacing: -0.2,
     flexShrink: 1,
-  },
-  homePill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: radius.pill,
-    backgroundColor: 'rgba(255,255,255,0.7)',
-    borderWidth: 1,
-    borderColor: colors.glassBorder,
-  },
-  homePillPressed: {
-    backgroundColor: colors.bgWarm,
-  },
-  homePillText: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: colors.ink,
-    letterSpacing: 0.2,
   },
 });
